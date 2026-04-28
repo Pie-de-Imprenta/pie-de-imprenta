@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pie de Imprenta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Libre+Franklin:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #1a1208;
+      --paper: #f5f0e8;
+      --accent: #b5390a;
+      --muted: #7a6e60;
+      --rule: #c8bfaf;
+      --card-bg: #faf7f2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Libre Franklin', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      border-bottom: 3px double var(--ink);
+      padding: 2rem 2rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      position: relative;
+    }
+
+    header::before {
+      content: '';
+      display: block;
+      height: 3px;
+      background: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .header-kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .header-sub {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .header-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-top: 0.8rem;
+    }
+
+    /* CONTROLES */
+    .controls {
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      background: var(--paper);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 0.5rem 0.8rem 0.5rem 2rem;
+      border: 1px solid var(--rule);
+      background: var(--card-bg);
+      font-family: 'Libre Franklin', sans-serif;
+      font-size: 0.85rem;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search-wrap input:focus { border-color: var(--ink); }
+
+    .search-wrap::before {
+      content: '⌕';
+      position: absolute;
+      left: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+
+    select {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid var(--rule);
+      background: var(--card-bg);
+      color: var(--ink);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      padding: 0.5rem 2rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stats-bar span { color: var(--accent); font-weight: 500; }
+
+    /* GRID */
+    .grid {
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--rule);
+    }
+
+    /* CARD */
+    .card {
+      background: var(--card-bg);
+      padding: 1.2rem 1.2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: background 0.15s;
+      animation: fadeIn 0.3s ease both;
+      cursor: default;
+    }
+
+    .card:hover { background: #fff; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-provincia {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .card-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .card-autor {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .card-divider {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 0.3rem 0;
+    }
+
+    .card-editorial {
+      font-family: 'Libre Franklin', sans-serif;
+      font-weight: 600;
+      font-size: 0.78rem;
+      color: var(--ink);
+    }
+
+    .card-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .card-meta .tag {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      padding: 0.1rem 0.4rem;
+      font-size: 0.58rem;
+      letter-spacing: 0.05em;
+    }
+
+    .card-isbn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--rule);
+      margin-top: auto;
+      padding-top: 0.3rem;
+    }
+
+    /* STAND BADGE */
+    .card-stand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* EMPTY */
+    .empty {
+      grid-column: 1 / -1;
+      padding: 4rem 2rem;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    /* LOADING */
+    .loading {
+      padding: 4rem 2rem;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 1ch;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* FOOTER */
+    footer {
+      border-top: 3px double var(--ink);
+      padding: 1.2rem 2rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      header, .controls, .stats-bar, .grid, footer { padding-left: 1rem; padding-right: 1rem; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-kicker">Registro Federal de Editoriales · Argentina</div>
+  <h1>Pie de Imprenta</h1>
+  <div class="header-sub">Novedades editoriales de todo el país, en un solo lugar</div>
+  <div class="header-meta" id="last-update">Cargando datos...</div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Buscar por título, autor, editorial..." />
+  </div>
+  <div class="filter-group" id="provincia-filters">
+    <button class="filter-btn active" data-provincia="">Todas</button>
+  </div>
+  <select id="tipo-filter">
+    <option value="">Todos los tipos</option>
+    <option value="Independiente">Independiente</option>
+    <option value="Institucional">Institucional</option>
+    <option value="Universitaria">Universitaria</option>
+  </select>
+</div>
+
+<div class="stats-bar" id="stats-bar">
+  &nbsp;
+</div>
+
+<div class="grid" id="grid">
+  <div class="loading">Cargando registros</div>
+</div>
+
+<footer>
+  <span>Pie de Imprenta · SIGO PRODUCCIONES</span>
+  <span id="footer-count"></span>
+</footer>
+
+<script>
+  const SHEET_ID = '1dULxv59otAv5TmRyz2jf2xOM4sfhkkNOP_ePloePWJ4';
+  const SHEET_NAME = 'Respuestas de formulario 1';
+  const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+  let allRecords = [];
+  let activeFilter = '';
+
+  async function loadData() {
+    try {
+      const res = await fetch(URL);
+      const text = await res.text();
+      const json = JSON.parse(text.slice(47, -2));
+      const cols = json.table.cols.map(c => c.label);
+      const rows = json.table.rows;
+
+      allRecords = rows.map(row => {
+        const obj = {};
+        cols.forEach((col, i) => {
+          obj[col] = row.c[i]?.v ?? '';
+        });
+        return obj;
+      }).filter(r => r['Título'] || r['título'] || r['TÍTULO']);
+
+      buildFilters();
+      render();
+      updateMeta();
+    } catch(e) {
+      document.getElementById('grid').innerHTML = '<div class="empty">No se pudieron cargar los datos. Intentá de nuevo.</div>';
+    }
+  }
+
+  function getField(record, ...candidates) {
+    for (const c of candidates) {
+      const key = Object.keys(record).find(k => k.toLowerCase() === c.toLowerCase());
+      if (key && record[key]) return String(record[key]).trim();
+    }
+    return '';
+  }
+
+  function buildFilters() {
+    const provincias = [...new Set(allRecords.map(r => getField(r, 'Provincia de origen')).filter(Boolean))].sort();
+    const container = document.getElementById('provincia-filters');
+    container.innerHTML = '<button class="filter-btn active" data-provincia="">Todas</button>';
+    provincias.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.provincia = p;
+      btn.textContent = p;
+      container.appendChild(btn);
+    });
+    container.addEventListener('click', e => {
+      if (!e.target.classList.contains('filter-btn')) return;
+      container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      activeFilter = e.target.dataset.provincia;
+      render();
+    });
+  }
+
+  function filtered() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const tipo = document.getElementById('tipo-filter').value.toLowerCase();
+    return allRecords.filter(r => {
+      const titulo = getField(r, 'Título');
+      const autor = getField(r, 'Autor/es');
+      const editorial = getField(r, 'Editorial');
+      const provincia = getField(r, 'Provincia de origen');
+      const tipoEd = getField(r, 'Tipo de editorial');
+
+      const matchQ = !q || [titulo, autor, editorial, provincia].some(f => f.toLowerCase().includes(q));
+      const matchProv = !activeFilter || provincia === activeFilter;
+      const matchTipo = !tipo || tipoEd.toLowerCase().includes(tipo);
+      return matchQ && matchProv && matchTipo;
+    });
+  }
+
+  function render() {
+    const records = filtered();
+    const grid = document.getElementById('grid');
+
+    if (!records.length) {
+      grid.innerHTML = '<div class="empty">No se encontraron registros con ese criterio.</div>';
+      updateStats(records);
+      return;
+    }
+
+    grid.innerHTML = records.map((r, i) => {
+      const titulo = getField(r, 'Título');
+      const autor = getField(r, 'Autor/es');
+      const editorial = getField(r, 'Editorial');
+      const provincia = getField(r, 'Provincia de origen');
+      const tipo = getField(r, 'Tipo de editorial');
+      const año = getField(r, 'Año de edición');
+      const isbn = getField(r, 'ISBN');
+      const stand = getField(r, 'Stand / Provincia representada');
+      const pabellon = getField(r, 'Pabellón');
+      const distribucion = getField(r, 'Distribución');
+
+      const standInfo = stand ? `Stand ${stand}${pabellon ? ' · Pab. ' + pabellon : ''}` : '';
+
+      return `<div class="card" style="animation-delay:${i * 0.03}s">
+        ${provincia ? `<div class="card-provincia">${provincia}</div>` : ''}
+        <div class="card-titulo">${titulo}</div>
+        ${autor ? `<div class="card-autor">${autor}</div>` : ''}
+        <hr class="card-divider"/>
+        ${editorial ? `<div class="card-editorial">${editorial}</div>` : ''}
+        <div class="card-meta">
+          ${año ? `<span>${año}</span>` : ''}
+          ${tipo ? `<span class="tag">${tipo}</span>` : ''}
+          ${distribucion ? `<span class="tag">${distribucion}</span>` : ''}
+        </div>
+        ${standInfo ? `<div class="card-stand">${standInfo}</div>` : ''}
+        ${isbn ? `<div class="card-isbn">${isbn}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    updateStats(records);
+  }
+
+  function updateStats(records) {
+    const provincias = new Set(records.map(r => getField(r, 'Provincia de origen')).filter(Boolean));
+    const editoriales = new Set(records.map(r => getField(r, 'Editorial')).filter(Boolean));
+    document.getElementById('stats-bar').innerHTML =
+      `<span>${records.length}</span> registros · <span>${provincias.size}</span> provincias · <span>${editoriales.size}</span> editoriales`;
+    document.getElementById('footer-count').textContent = `${allRecords.length} registros totales`;
+  }
+
+  function updateMeta() {
+    document.getElementById('last-update').textContent =
+      `Actualizado: ${new Date().toLocaleDateString('es-AR', {day:'numeric', month:'long', year:'numeric'})}`;
+  }
+
+  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('tipo-filter').addEventListener('change', render);
+
+  loadData();
+</script>
+</body>
+</html>
