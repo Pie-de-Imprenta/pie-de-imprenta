@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pie de Imprenta</title>
+  <title>Pie de Imprenta — Registro Federal de Editoriales</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Libre+Franklin:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -14,307 +14,96 @@
       --rule: #c8bfaf;
       --card-bg: #faf7f2;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--paper);
-      color: var(--ink);
-      font-family: 'Libre Franklin', sans-serif;
-      font-weight: 300;
-      min-height: 100vh;
-    }
+    body { background: var(--paper); color: var(--ink); font-family: 'Libre Franklin', sans-serif; font-weight: 300; min-height: 100vh; }
 
     /* HEADER */
-    header {
-      border-bottom: 3px double var(--ink);
-      padding: 2rem 2rem 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      position: relative;
-    }
+    header { border-bottom: 3px double var(--ink); padding: 2rem 2rem 1.2rem; }
+    header::before { content: ''; display: block; height: 3px; background: var(--ink); margin-bottom: 0.6rem; }
+    .header-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; margin: 0.2rem 0; }
+    .header-sub { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.95rem; color: var(--muted); }
+    .header-meta { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; margin-top: 0.8rem; }
 
-    header::before {
-      content: '';
-      display: block;
-      height: 3px;
-      background: var(--ink);
-      margin-bottom: 0.5rem;
-    }
-
-    .header-kicker {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.2rem, 6vw, 4rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-
-    .header-sub {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-top: 0.2rem;
-    }
-
-    .header-meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      margin-top: 0.8rem;
-    }
+    /* BIENVENIDA */
+    .bienvenida { padding: 1.5rem 2rem; border-bottom: 1px solid var(--rule); max-width: 720px; }
+    .bienvenida p { font-size: 0.9rem; line-height: 1.7; color: var(--ink); }
+    .bienvenida strong { font-weight: 600; }
 
     /* CONTROLES */
-    .controls {
-      padding: 1rem 2rem;
-      border-bottom: 1px solid var(--rule);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      align-items: center;
-      background: var(--paper);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .search-wrap {
-      position: relative;
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .search-wrap input {
-      width: 100%;
-      padding: 0.5rem 0.8rem 0.5rem 2rem;
-      border: 1px solid var(--rule);
-      background: var(--card-bg);
-      font-family: 'Libre Franklin', sans-serif;
-      font-size: 0.85rem;
-      color: var(--ink);
-      outline: none;
-    }
-
+    .controls { padding: 1rem 2rem; border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; background: var(--paper); position: sticky; top: 0; z-index: 10; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap input { width: 100%; padding: 0.5rem 0.8rem 0.5rem 2rem; border: 1px solid var(--rule); background: var(--card-bg); font-family: 'Libre Franklin', sans-serif; font-size: 0.85rem; color: var(--ink); outline: none; }
     .search-wrap input:focus { border-color: var(--ink); }
+    .search-wrap::before { content: '⌕'; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; }
 
-    .search-wrap::before {
-      content: '⌕';
-      position: absolute;
-      left: 0.6rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      font-size: 1rem;
-    }
+    .filter-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    .filter-group { display: flex; gap: 0.3rem; flex-wrap: wrap; align-items: center; }
+    .filter-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.6rem; border: 1px solid var(--rule); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .filter-btn:hover, .filter-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-    .filter-group {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-    }
+    select { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; padding: 0.3rem 0.6rem; border: 1px solid var(--rule); background: var(--card-bg); color: var(--ink); cursor: pointer; outline: none; }
 
-    .filter-btn {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.7rem;
-      border: 1px solid var(--rule);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--ink);
-      color: var(--paper);
-      border-color: var(--ink);
-    }
-
-    select {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.05em;
-      padding: 0.35rem 0.7rem;
-      border: 1px solid var(--rule);
-      background: var(--card-bg);
-      color: var(--ink);
-      cursor: pointer;
-      outline: none;
-    }
-
-    /* STATS BAR */
-    .stats-bar {
-      padding: 0.5rem 2rem;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--rule);
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
+    /* STATS */
+    .stats-bar { padding: 0.5rem 2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); border-bottom: 1px solid var(--rule); display: flex; gap: 1.5rem; flex-wrap: wrap; }
     .stats-bar span { color: var(--accent); font-weight: 500; }
 
     /* GRID */
-    .grid {
-      padding: 1.5rem 2rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1px;
-      background: var(--rule);
-    }
+    .grid { padding: 1.5rem 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--rule); }
 
     /* CARD */
-    .card {
-      background: var(--card-bg);
-      padding: 1.2rem 1.2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      transition: background 0.15s;
-      animation: fadeIn 0.3s ease both;
-      cursor: default;
-    }
-
+    .card { background: var(--card-bg); padding: 1.2rem; display: flex; flex-direction: column; gap: 0.35rem; cursor: pointer; transition: background 0.15s; animation: fadeIn 0.3s ease both; }
     .card:hover { background: #fff; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .card-region { font-family: 'IBM Plex Mono', monospace; font-size: 0.56rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+    .card-provincia { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+    .card-titulo { font-family: 'Playfair Display', serif; font-size: 1rem; line-height: 1.25; font-weight: 700; }
+    .card-autor { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); }
+    .card-divider { border: none; border-top: 1px solid var(--rule); margin: 0.2rem 0; }
+    .card-editorial { font-family: 'Libre Franklin', sans-serif; font-weight: 600; font-size: 0.78rem; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.2rem; }
+    .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.56rem; letter-spacing: 0.04em; border: 1px solid var(--rule); padding: 0.1rem 0.35rem; background: var(--paper); color: var(--muted); }
+    .card-ver { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--accent); margin-top: auto; padding-top: 0.5rem; letter-spacing: 0.05em; }
 
-    .card-provincia {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .card-titulo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.05rem;
-      line-height: 1.25;
-      font-weight: 700;
-    }
-
-    .card-autor {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .card-divider {
-      border: none;
-      border-top: 1px solid var(--rule);
-      margin: 0.3rem 0;
-    }
-
-    .card-editorial {
-      font-family: 'Libre Franklin', sans-serif;
-      font-weight: 600;
-      font-size: 0.78rem;
-      color: var(--ink);
-    }
-
-    .card-meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-    }
-
-    .card-meta .tag {
-      background: var(--paper);
-      border: 1px solid var(--rule);
-      padding: 0.1rem 0.4rem;
-      font-size: 0.58rem;
-      letter-spacing: 0.05em;
-    }
-
-    .card-isbn {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--rule);
-      margin-top: auto;
-      padding-top: 0.3rem;
-    }
-
-    /* STAND BADGE */
-    .card-stand {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      margin-top: 0.2rem;
-    }
-
-    /* EMPTY */
-    .empty {
-      grid-column: 1 / -1;
-      padding: 4rem 2rem;
-      text-align: center;
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      color: var(--muted);
-      font-size: 1.1rem;
-    }
-
-    /* LOADING */
-    .loading {
-      padding: 4rem 2rem;
-      text-align: center;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .loading::after {
-      content: '';
-      display: inline-block;
-      width: 1ch;
-      animation: blink 1s step-end infinite;
-    }
-
+    /* EMPTY / LOADING */
+    .empty, .loading { grid-column: 1/-1; padding: 4rem 2rem; text-align: center; font-family: 'Playfair Display', serif; font-style: italic; color: var(--muted); font-size: 1.1rem; }
+    .loading::after { content: ''; display: inline-block; width: 1ch; animation: blink 1s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,18,8,0.6); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--paper); max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; border-top: 4px solid var(--ink); animation: slideUp 0.2s ease; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+    .modal-close:hover { color: var(--ink); }
+    .modal-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
+    .modal-titulo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.3rem; }
+    .modal-autor { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; color: var(--muted); margin-bottom: 1rem; }
+    .modal-divider { border: none; border-top: 2px solid var(--rule); margin: 0.8rem 0; }
+    .modal-field { display: flex; flex-direction: column; gap: 0.1rem; margin-bottom: 0.6rem; }
+    .modal-field-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .modal-field-value { font-family: 'Libre Franklin', sans-serif; font-size: 0.88rem; color: var(--ink); }
+    .modal-isbn { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
+    .modal-obs { font-family: 'Libre Franklin', sans-serif; font-size: 0.82rem; color: var(--muted); font-style: italic; margin-top: 0.5rem; border-left: 2px solid var(--rule); padding-left: 0.7rem; }
+    .modal-contacto a { color: var(--accent); font-size: 0.82rem; word-break: break-all; }
+
+    /* SECCIÓN EDITORES */
+    .editores-section { border-top: 3px double var(--ink); padding: 2rem; display: flex; flex-direction: column; gap: 1rem; max-width: 720px; }
+    .editores-section h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+    .editores-section p { font-size: 0.88rem; line-height: 1.7; color: var(--ink); }
+    .btn-sumar { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.7rem 1.4rem; background: var(--ink); color: var(--paper); text-decoration: none; border: 2px solid var(--ink); transition: all 0.15s; width: fit-content; }
+    .btn-sumar:hover { background: transparent; color: var(--ink); }
+
     /* FOOTER */
-    footer {
-      border-top: 3px double var(--ink);
-      padding: 1.2rem 2rem;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
+    footer { border-top: 3px double var(--ink); padding: 1.2rem 2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
 
     @media (max-width: 600px) {
-      header, .controls, .stats-bar, .grid, footer { padding-left: 1rem; padding-right: 1rem; }
+      header, .bienvenida, .controls, .stats-bar, .grid, .editores-section, footer { padding-left: 1rem; padding-right: 1rem; }
       .grid { grid-template-columns: 1fr; }
       h1 { font-size: 2rem; }
+      .modal { padding: 1.5rem; }
     }
   </style>
 </head>
@@ -324,44 +113,106 @@
   <div class="header-kicker">Registro Federal de Editoriales · Argentina</div>
   <h1>Pie de Imprenta</h1>
   <div class="header-sub">Novedades editoriales de todo el país, en un solo lugar</div>
-  <div class="header-meta" id="last-update">Cargando datos...</div>
+  <div class="header-meta" id="last-update">Cargando...</div>
 </header>
+
+<div class="bienvenida">
+  <p>
+    <strong>Pie de Imprenta</strong> es un registro abierto y federal de novedades editoriales argentinas.
+    Nació de una pregunta simple: ¿por qué es tan difícil saber qué publica una editorial de Tucumán
+    si sos librero en Florencio Varela? Acá encontrás títulos recientes de editoriales independientes,
+    universitarias e institucionales de todo el país — para que la distancia no sea una barrera editorial.
+  </p>
+</div>
 
 <div class="controls">
   <div class="search-wrap">
     <input type="text" id="search" placeholder="Buscar por título, autor, editorial..." />
   </div>
-  <div class="filter-group" id="provincia-filters">
-    <button class="filter-btn active" data-provincia="">Todas</button>
+  <span class="filter-label">Región:</span>
+  <div class="filter-group" id="region-filters">
+    <button class="filter-btn active" data-region="">Todas</button>
+    <button class="filter-btn" data-region="Buenos Aires y CABA">Bs. As. / CABA</button>
+    <button class="filter-btn" data-region="Norte Cultura">Norte Cultura</button>
+    <button class="filter-btn" data-region="Cultura Cuyo">Cuyo</button>
+    <button class="filter-btn" data-region="Litoral">Litoral</button>
+    <button class="filter-btn" data-region="Centro">Centro</button>
+    <button class="filter-btn" data-region="Ente Patagónico">Patagonia</button>
   </div>
   <select id="tipo-filter">
     <option value="">Todos los tipos</option>
     <option value="Independiente">Independiente</option>
     <option value="Institucional">Institucional</option>
     <option value="Universitaria">Universitaria</option>
+    <option value="Cartonera">Cartonera</option>
   </select>
 </div>
 
-<div class="stats-bar" id="stats-bar">
-  &nbsp;
-</div>
+<div class="stats-bar" id="stats-bar">&nbsp;</div>
 
 <div class="grid" id="grid">
   <div class="loading">Cargando registros</div>
 </div>
 
+<div class="editores-section">
+  <h2>¿Sos editor o editora?</h2>
+  <p>
+    Pie de Imprenta se construye desde abajo, con la colaboración de quienes hacen libros.
+    Si tenés un sello editorial —independiente, universitario, cartonero, institucional—
+    podés sumarte y visibilizar tus novedades para libreros y distribuidores de todo el país.
+    No hace falta ningún trámite: completás un formulario y tus títulos aparecen en el registro.
+  </p>
+  <a class="btn-sumar" href="https://docs.google.com/forms/d/e/1FAIpQLSfnzPyU2J9pLd7NGiM847QK5hIqGpH0W-KI2GU1Ig7v5T7ouQ/viewform" target="_blank">
+    Sumá tus novedades →
+  </a>
+</div>
+
 <footer>
-  <span>Pie de Imprenta · SIGO PRODUCCIONES</span>
+  <span>Pie de Imprenta · SIGO Producciones</span>
   <span id="footer-count"></span>
 </footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
 
 <script>
   const SHEET_ID = '1dULxv59otAv5TmRyz2jf2xOM4sfhkkNOP_ePloePWJ4';
   const SHEET_NAME = 'Respuestas de formulario 1';
   const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
+  const REGIONES = {
+    'Buenos Aires y CABA': ['Buenos Aires', 'CABA'],
+    'Norte Cultura': ['Catamarca', 'Jujuy', 'Salta', 'Tucumán'],
+    'Cultura Cuyo': ['Mendoza', 'San Juan', 'San Luis'],
+    'Litoral': ['Chaco', 'Corrientes', 'Entre Ríos', 'Formosa', 'Misiones', 'Santa Fe'],
+    'Centro': ['Córdoba', 'La Rioja', 'Santiago del Estero'],
+    'Ente Patagónico': ['Chubut', 'La Pampa', 'Neuquén', 'Río Negro', 'Santa Cruz', 'Tierra del Fuego']
+  };
+
+  function getRegion(provincia) {
+    for (const [region, provincias] of Object.entries(REGIONES)) {
+      if (provincias.some(p => provincia.toLowerCase().includes(p.toLowerCase()))) return region;
+    }
+    return 'Otras';
+  }
+
   let allRecords = [];
-  let activeFilter = '';
+  let activeRegion = '';
+
+  function getField(record, ...candidates) {
+    for (const c of candidates) {
+      const key = Object.keys(record).find(k => k.toLowerCase().trim() === c.toLowerCase().trim());
+      if (key && record[key] !== null && record[key] !== undefined && String(record[key]).trim() !== '') {
+        return String(record[key]).trim();
+      }
+    }
+    return '';
+  }
 
   async function loadData() {
     try {
@@ -369,50 +220,19 @@
       const text = await res.text();
       const json = JSON.parse(text.slice(47, -2));
       const cols = json.table.cols.map(c => c.label);
-      const rows = json.table.rows;
-
-      allRecords = rows.map(row => {
-        const obj = {};
-        cols.forEach((col, i) => {
-          obj[col] = row.c[i]?.v ?? '';
-        });
-        return obj;
-      }).filter(r => r['Título'] || r['título'] || r['TÍTULO']);
-
-      buildFilters();
+      allRecords = json.table.rows
+        .map(row => {
+          const obj = {};
+          cols.forEach((col, i) => { obj[col] = row.c[i]?.v ?? ''; });
+          return obj;
+        })
+        .filter(r => getField(r, 'Título'));
       render();
       updateMeta();
+      generateSchemaOrg(allRecords);
     } catch(e) {
-      document.getElementById('grid').innerHTML = '<div class="empty">No se pudieron cargar los datos. Intentá de nuevo.</div>';
+      document.getElementById('grid').innerHTML = '<div class="empty">No se pudieron cargar los datos.</div>';
     }
-  }
-
-  function getField(record, ...candidates) {
-    for (const c of candidates) {
-      const key = Object.keys(record).find(k => k.toLowerCase() === c.toLowerCase());
-      if (key && record[key]) return String(record[key]).trim();
-    }
-    return '';
-  }
-
-  function buildFilters() {
-    const provincias = [...new Set(allRecords.map(r => getField(r, 'Provincia de origen')).filter(Boolean))].sort();
-    const container = document.getElementById('provincia-filters');
-    container.innerHTML = '<button class="filter-btn active" data-provincia="">Todas</button>';
-    provincias.forEach(p => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn';
-      btn.dataset.provincia = p;
-      btn.textContent = p;
-      container.appendChild(btn);
-    });
-    container.addEventListener('click', e => {
-      if (!e.target.classList.contains('filter-btn')) return;
-      container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      activeFilter = e.target.dataset.provincia;
-      render();
-    });
   }
 
   function filtered() {
@@ -424,11 +244,12 @@
       const editorial = getField(r, 'Editorial');
       const provincia = getField(r, 'Provincia de origen');
       const tipoEd = getField(r, 'Tipo de editorial');
+      const region = getRegion(provincia);
 
       const matchQ = !q || [titulo, autor, editorial, provincia].some(f => f.toLowerCase().includes(q));
-      const matchProv = !activeFilter || provincia === activeFilter;
+      const matchRegion = !activeRegion || region === activeRegion;
       const matchTipo = !tipo || tipoEd.toLowerCase().includes(tipo);
-      return matchQ && matchProv && matchTipo;
+      return matchQ && matchRegion && matchTipo;
     });
   }
 
@@ -449,31 +270,92 @@
       const provincia = getField(r, 'Provincia de origen');
       const tipo = getField(r, 'Tipo de editorial');
       const año = getField(r, 'Año de edición');
-      const isbn = getField(r, 'ISBN');
-      const stand = getField(r, 'Stand / Provincia representada');
-      const pabellon = getField(r, 'Pabellón');
-      const distribucion = getField(r, 'Distribución');
+      const region = getRegion(provincia);
 
-      const standInfo = stand ? `Stand ${stand}${pabellon ? ' · Pab. ' + pabellon : ''}` : '';
-
-      return `<div class="card" style="animation-delay:${i * 0.03}s">
+      return `<div class="card" style="animation-delay:${Math.min(i,20)*0.03}s" data-idx="${i}">
+        <div class="card-region">${region}</div>
         ${provincia ? `<div class="card-provincia">${provincia}</div>` : ''}
         <div class="card-titulo">${titulo}</div>
         ${autor ? `<div class="card-autor">${autor}</div>` : ''}
         <hr class="card-divider"/>
         ${editorial ? `<div class="card-editorial">${editorial}</div>` : ''}
-        <div class="card-meta">
-          ${año ? `<span>${año}</span>` : ''}
+        <div class="card-tags">
+          ${año ? `<span class="tag">${año}</span>` : ''}
           ${tipo ? `<span class="tag">${tipo}</span>` : ''}
-          ${distribucion ? `<span class="tag">${distribucion}</span>` : ''}
         </div>
-        ${standInfo ? `<div class="card-stand">${standInfo}</div>` : ''}
-        ${isbn ? `<div class="card-isbn">${isbn}</div>` : ''}
+        <div class="card-ver">Ver detalle →</div>
       </div>`;
     }).join('');
 
+    grid.querySelectorAll('.card').forEach((card, i) => {
+      card.addEventListener('click', () => openModal(records[i]));
+    });
+
     updateStats(records);
   }
+
+  function openModal(r) {
+    const titulo = getField(r, 'Título');
+    const autor = getField(r, 'Autor/es');
+    const editorial = getField(r, 'Editorial');
+    const provincia = getField(r, 'Provincia de origen');
+    const tipo = getField(r, 'Tipo de editorial');
+    const año = getField(r, 'Año de edición');
+    const isbn = getField(r, 'ISBN');
+    const coleccion = getField(r, 'Colección');
+    const tematica = getField(r, 'Temática');
+    const distribucion = getField(r, 'Distribución');
+    const contacto = getField(r, 'Contacto o web');
+    const notas = getField(r, 'Notas');
+    const obs = getField(r, 'Observaciones');
+    const region = getRegion(provincia);
+
+    const field = (label, value) => value
+      ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
+      : '';
+
+    document.getElementById('modal-content').innerHTML = `
+      <div class="modal-kicker">${region}${provincia ? ' · ' + provincia : ''}</div>
+      <div class="modal-titulo">${titulo}</div>
+      ${autor ? `<div class="modal-autor">${autor}</div>` : ''}
+      <hr class="modal-divider"/>
+      ${field('Editorial', editorial)}
+      ${field('Tipo de editorial', tipo)}
+      ${field('Año de edición', año)}
+      ${field('Colección', coleccion)}
+      ${field('Temática', tematica)}
+      ${field('Distribución', distribucion)}
+      ${isbn ? `<div class="modal-isbn">ISBN: ${isbn}</div>` : ''}
+      ${contacto ? `<hr class="modal-divider"/><div class="modal-field"><div class="modal-field-label">Contacto</div><div class="modal-contacto"><a href="${contacto.startsWith('http') ? contacto : 'https://'+contacto}" target="_blank">${contacto}</a></div></div>` : ''}
+      ${notas ? `<div class="modal-obs">${notas}</div>` : ''}
+      ${obs ? `<div class="modal-obs">${obs}</div>` : ''}
+    `;
+
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('region-filters').addEventListener('click', e => {
+    if (!e.target.classList.contains('filter-btn')) return;
+    document.querySelectorAll('#region-filters .filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    activeRegion = e.target.dataset.region;
+    render();
+  });
+
+  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('tipo-filter').addEventListener('change', render);
 
   function updateStats(records) {
     const provincias = new Set(records.map(r => getField(r, 'Provincia de origen')).filter(Boolean));
@@ -488,8 +370,71 @@
       `Actualizado: ${new Date().toLocaleDateString('es-AR', {day:'numeric', month:'long', year:'numeric'})}`;
   }
 
-  document.getElementById('search').addEventListener('input', render);
-  document.getElementById('tipo-filter').addEventListener('change', render);
+  function generateSchemaOrg(records) {
+    // Eliminar schema previo si existe
+    const prev = document.getElementById('schema-org');
+    if (prev) prev.remove();
+
+    // Dataset principal
+    const dataset = {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Pie de Imprenta — Registro Federal de Editoriales Argentinas",
+      "description": "Registro abierto y federal de novedades editoriales argentinas. Títulos recientes de editoriales independientes, universitarias, institucionales y cartoneras de todo el país.",
+      "url": "https://pie-de-imprenta.github.io/pie-de-imprenta/",
+      "creator": {
+        "@type": "Organization",
+        "name": "SIGO Producciones",
+        "url": "https://pie-de-imprenta.github.io/pie-de-imprenta/"
+      },
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "inLanguage": "es-AR",
+      "spatialCoverage": "Argentina",
+      "hasPart": records.map(r => {
+        const titulo = getField(r, 'Título');
+        const autor = getField(r, 'Autor/es');
+        const editorial = getField(r, 'Editorial');
+        const año = getField(r, 'Año de edición');
+        const isbn = getField(r, 'ISBN');
+        const provincia = getField(r, 'Provincia de origen');
+        const coleccion = getField(r, 'Colección');
+        const tematica = getField(r, 'Temática');
+        const contacto = getField(r, 'Contacto o web');
+        const distribucion = getField(r, 'Distribución');
+
+        const book = {
+          "@type": "Book",
+          "name": titulo,
+          "inLanguage": "es"
+        };
+
+        if (autor) book.author = autor.split(/[,;]/).map(a => ({ "@type": "Person", "name": a.trim() }));
+        if (isbn) book.isbn = isbn.replace(/[-\s]/g, '');
+        if (año) book.datePublished = String(año).replace(/\./g, '');
+        if (coleccion) book.isPartOf = { "@type": "BookSeries", "name": coleccion };
+        if (tematica) book.genre = tematica;
+
+        if (editorial) {
+          const org = {
+            "@type": "Organization",
+            "name": editorial
+          };
+          if (provincia) org.address = { "@type": "PostalAddress", "addressRegion": provincia, "addressCountry": "AR" };
+          if (contacto) org.url = contacto.startsWith('http') ? contacto : 'https://' + contacto;
+          if (distribucion) org.areaServed = distribucion;
+          book.publisher = org;
+        }
+
+        return book;
+      })
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'schema-org';
+    script.textContent = JSON.stringify(dataset, null, 2);
+    document.head.appendChild(script);
+  }
 
   loadData();
 </script>
