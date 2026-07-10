@@ -238,13 +238,13 @@
   const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
   const REGIONES = {
-  'Buenos Aires y CABA': ['Buenos Aires', 'CABA'],
-  'Norte Cultura': ['Catamarca', 'Jujuy', 'Salta', 'Tucumán'],
-  'Cultura Cuyo': ['Mendoza', 'San Juan', 'San Luis'],
-  'Litoral': ['Chaco', 'Corrientes', 'Entre Ríos', 'Formosa', 'Misiones', 'Santa Fe', 'Santiago del Estero'],
-  'Centro': ['Córdoba', 'La Rioja'],
-  'Ente Patagónico': ['Chubut', 'La Pampa', 'Neuquén', 'Río Negro', 'Santa Cruz', 'Tierra del Fuego']
-};
+    'Buenos Aires y CABA': ['Buenos Aires', 'CABA'],
+    'Norte Cultura': ['Catamarca', 'Jujuy', 'Salta', 'Tucumán'],
+    'Cultura Cuyo': ['Mendoza', 'San Juan', 'San Luis'],
+    'Litoral': ['Chaco', 'Corrientes', 'Entre Ríos', 'Formosa', 'Misiones', 'Santa Fe', 'Santiago del Estero'],
+    'Centro': ['Córdoba', 'La Rioja'],
+    'Ente Patagónico': ['Chubut', 'La Pampa', 'Neuquén', 'Río Negro', 'Santa Cruz', 'Tierra del Fuego']
+  };
 
   function getRegion(provincia) {
     for (const [region, provincias] of Object.entries(REGIONES)) {
@@ -395,7 +395,7 @@
       const tipo = getField(r, 'Tipo de editorial');
       const año = getField(r, 'Año de edición');
       const region = getRegion(provincia);
-      return `<div class="card" style="animation-delay:${Math.min(i,20)*0.03}s" data-idx="${i}">
+      return `<div class="card card-clickable" data-record-index="${i}" style="animation-delay:${Math.min(i,20)*0.03}s">
         <div class="card-region">${region}</div>
         ${provincia ? `<div class="card-provincia">${provincia}</div>` : ''}
         <div class="card-titulo">${titulo}</div>
@@ -409,8 +409,11 @@
         <div class="card-ver">Ver detalle →</div>
       </div>`;
     }).join('');
-    grid.querySelectorAll('.card').forEach((card, i) => {
-      card.addEventListener('click', () => openModalTitulo(records[i]));
+    document.querySelectorAll('.card-clickable').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const idx = parseInt(card.dataset.recordIndex, 10);
+        openModalTitulo(records[idx]);
+      });
     });
     updateStats(records);
   }
