@@ -545,8 +545,6 @@
 
   // ── MODAL EDITORIAL ──
   function openModalEditorial(ed) {
-    alert("Entró a openModalEditorial");
-
     const field = (label, value) => value
       ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
       : '';
@@ -565,9 +563,9 @@
           <span class="modal-titulo-año">${t.año || ''}</span>
         </div>
       `).join('')}
-    `;document.getElementById('modal-content').addEventListener('click', (e) => {
-    console.log("Click en:", e.target);
-});
+    `;document.getElementById('modal-content').onclick = function(e) {
+    alert(e.target.className);
+};
     openModal();
   }
 
