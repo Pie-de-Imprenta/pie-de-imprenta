@@ -237,13 +237,13 @@
   const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
   const REGIONES = {
-    'Buenos Aires y CABA': ['Buenos Aires', 'CABA'],
-    'Norte Cultura': ['Catamarca', 'Jujuy', 'Salta', 'Tucumán'],
-    'Cultura Cuyo': ['Mendoza', 'San Juan', 'San Luis'],
-    'Litoral': ['Chaco', 'Corrientes', 'Entre Ríos', 'Formosa', 'Misiones', 'Santa Fe'],
-    'Centro': ['Córdoba', 'La Rioja', 'Santiago del Estero'],
-    'Ente Patagónico': ['Chubut', 'La Pampa', 'Neuquén', 'Río Negro', 'Santa Cruz', 'Tierra del Fuego']
-  };
+  'Buenos Aires y CABA': ['Buenos Aires', 'CABA'],
+  'Norte Cultura': ['Catamarca', 'Jujuy', 'Salta', 'Tucumán'],
+  'Cultura Cuyo': ['Mendoza', 'San Juan', 'San Luis'],
+  'Litoral': ['Chaco', 'Corrientes', 'Entre Ríos', 'Formosa', 'Misiones', 'Santa Fe', 'Santiago del Estero'],
+  'Centro': ['Córdoba', 'La Rioja'],
+  'Ente Patagónico': ['Chubut', 'La Pampa', 'Neuquén', 'Río Negro', 'Santa Cruz', 'Tierra del Fuego']
+};
 
   function getRegion(provincia) {
     for (const [region, provincias] of Object.entries(REGIONES)) {
