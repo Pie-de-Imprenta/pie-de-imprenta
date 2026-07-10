@@ -563,10 +563,8 @@
           <span class="modal-titulo-año">${t.año || ''}</span>
         </div>
       `).join('')}
-    `;document.querySelectorAll('.modal-titulo-item').forEach(item => {
-    item.addEventListener('click', () => {
-        console.log("Click");
-    });
+    `;document.getElementById('modal-content').addEventListener('click', (e) => {
+    console.log("Click en:", e.target);
 });
     openModal();
   }
