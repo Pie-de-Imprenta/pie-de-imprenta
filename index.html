@@ -563,9 +563,13 @@
           <span class="modal-titulo-año">${t.año || ''}</span>
         </div>
       `).join('')}
-    `;document.getElementById('modal-content').onclick = function(e) {
-    alert(e.target.className);
-};
+    `;document.getElementById('modal-content').querySelectorAll('.modal-titulo-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const index = item.dataset.index;
+      const libroSeleccionado = ed.titulos[index];
+      openModalDetalleLibro(libroSeleccionado, ed);
+    });
+  });
     openModal();
   }
 
@@ -584,6 +588,29 @@
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ── MODAL DETALLE DEL LIBRO (AUTÓNOMO) ──
+function openModalDetalleLibro(t, ed) {
+  const field = (label, value) => value
+    ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
+    : '';
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-kicker">${t.coleccion || 'Sin colección'}${t.año ? ' · ' + t.año : ''}</div>
+    <div class="modal-titulo">${t.titulo}</div>
+    <hr class="modal-divider"/>
+    ${field('Autor/es', t.autor)}
+    ${field('Temática', t.tematica)}
+    ${field('ISBN', t.isbn)}
+    ${field('Distribución', t.distribucion)}
+    ${field('Notas', t.notas)}
+    ${field('Observaciones', t.obs)}
+    <hr class="modal-divider"/>
+    <button id="modal-back-btn" style="cursor: pointer; padding: 6px 12px; margin-top: 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">← Volver a la editorial</button>
+  `;
+  document.getElementById('modal-back-btn').addEventListener('click', () => {
+    openModalEditorial(ed);
+  });
+}
 
   // ── FILTROS TÍTULOS ──
   document.getElementById('region-filters').addEventListener('click', e => {
