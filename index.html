@@ -544,7 +544,8 @@
   }
 
   // ── MODAL EDITORIAL ──
-  function openModalEditorial(ed) {
+
+function openModalEditorial(ed) {
   const field = (label, value) => value
     ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
     : '';
@@ -566,36 +567,33 @@
     `).join('')}
   `;
 
-  // Delegación de eventos inteligente para los títulos
-  document.getElementById('modal-content').onclick = function(e) {
-    const item = e.target.closest('.modal-titulo-item');
-    if (item) {
+  document.getElementById('modal-content').querySelectorAll('.modal-titulo-item').forEach(item => {
+    item.addEventListener('click', () => {
       const index = parseInt(item.dataset.index, 10);
       const libroSeleccionado = ed.titulos[index];
       openModalDetalleLibro(libroSeleccionado, ed);
-    }
-  };
+    });
+  });
 
   openModal();
 }
 
-  function openModal() {
-    document.getElementById('modal-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  document.getElementById('modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  // ── MODAL DETALLE DEL LIBRO (AUTÓNOMO) ──
 function openModalDetalleLibro(t, ed) {
   const field = (label, value) => value
     ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
@@ -615,13 +613,14 @@ function openModalDetalleLibro(t, ed) {
     <button id="modal-back-btn" style="cursor: pointer; padding: 6px 12px; margin-top: 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">← Volver a la editorial</button>
   `;
 
-  // Delegación de eventos para el botón de volver
-  document.getElementById('modal-content').onclick = function(e) {
-    if (e.target.closest('#modal-back-btn')) {
+  const backBtn = document.getElementById('modal-back-btn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
       openModalEditorial(ed);
-    }
-  };
+    });
+  }
 }
+
 
   // ── FILTROS TÍTULOS ──
   document.getElementById('region-filters').addEventListener('click', e => {
