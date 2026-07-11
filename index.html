@@ -545,33 +545,39 @@
 
   // ── MODAL EDITORIAL ──
   function openModalEditorial(ed) {
-    const field = (label, value) => value
-      ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
-      : '';
-    document.getElementById('modal-content').innerHTML = `
-      <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}</div>
-      <div class="modal-titulo">${ed.nombre}</div>
-      <hr class="modal-divider"/>
-      ${field('Tipo de editorial', ed.tipo)}
-      ${field('Provincia', ed.provincia)}
-      ${ed.contacto ? `<div class="modal-field"><div class="modal-field-label">Contacto</div><div class="modal-contacto"><a href="${ed.contacto.startsWith('http') ? ed.contacto : 'https://'+ed.contacto}" target="_blank">${ed.contacto}</a></div></div>` : ''}
-      <hr class="modal-divider"/>
-      <div class="modal-titulo-lista">Títulos en el registro (${ed.titulos.length})</div>
-      ${ed.titulos.map(t => `
-        <div class="modal-titulo-item">
-          <span>${t.titulo}${t.autor ? ` — <em>${t.autor}</em>` : ''}</span>
-          <span class="modal-titulo-año">${t.año || ''}</span>
-        </div>
-      `).join('')}
-    `;document.getElementById('modal-content').querySelectorAll('.modal-titulo-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const index = item.dataset.index;
+  const field = (label, value) => value
+    ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
+    : '';
+  
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}</div>
+    <div class="modal-titulo">${ed.nombre}</div>
+    <hr class="modal-divider"/>
+    ${field('Tipo de editorial', ed.tipo)}
+    ${field('Provincia', ed.provincia)}
+    ${ed.contacto ? `<div class="modal-field"><div class="modal-field-label">Contacto</div><div class="modal-contacto"><a href="${ed.contacto.startsWith('http') ? ed.contacto : 'https://'+ed.contacto}" target="_blank">${ed.contacto}</a></div></div>` : ''}
+    <hr class="modal-divider"/>
+    <div class="modal-titulo-lista">Títulos en el registro (${ed.titulos.length})</div>
+    ${ed.titulos.map((t, i) => `
+      <div class="modal-titulo-item" data-index="${i}" style="cursor: pointer;">
+        <span>${t.titulo}${t.autor ? ` — <em>${t.autor}</em>` : ''}</span>
+        <span class="modal-titulo-año">${t.año || ''}</span>
+      </div>
+    `).join('')}
+  `;
+
+  // Delegación de eventos inteligente para los títulos
+  document.getElementById('modal-content').onclick = function(e) {
+    const item = e.target.closest('.modal-titulo-item');
+    if (item) {
+      const index = parseInt(item.dataset.index, 10);
       const libroSeleccionado = ed.titulos[index];
       openModalDetalleLibro(libroSeleccionado, ed);
-    });
-  });
-    openModal();
-  }
+    }
+  };
+
+  openModal();
+}
 
   function openModal() {
     document.getElementById('modal-overlay').classList.add('open');
@@ -594,6 +600,7 @@ function openModalDetalleLibro(t, ed) {
   const field = (label, value) => value
     ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
     : '';
+  
   document.getElementById('modal-content').innerHTML = `
     <div class="modal-kicker">${t.coleccion || 'Sin colección'}${t.año ? ' · ' + t.año : ''}</div>
     <div class="modal-titulo">${t.titulo}</div>
@@ -607,9 +614,13 @@ function openModalDetalleLibro(t, ed) {
     <hr class="modal-divider"/>
     <button id="modal-back-btn" style="cursor: pointer; padding: 6px 12px; margin-top: 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">← Volver a la editorial</button>
   `;
-  document.getElementById('modal-back-btn').addEventListener('click', () => {
-    openModalEditorial(ed);
-  });
+
+  // Delegación de eventos para el botón de volver
+  document.getElementById('modal-content').onclick = function(e) {
+    if (e.target.closest('#modal-back-btn')) {
+      openModalEditorial(ed);
+    }
+  };
 }
 
   // ── FILTROS TÍTULOS ──
