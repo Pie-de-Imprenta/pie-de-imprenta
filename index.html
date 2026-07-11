@@ -531,13 +531,40 @@
       ${ed.contacto ? `<div class="modal-field"><div class="modal-field-label">Contacto</div><div class="modal-contacto"><a href="${ed.contacto.startsWith('http') ? ed.contacto : 'https://'+ed.contacto}" target="_blank">${ed.contacto}</a></div></div>` : ''}
       <hr class="modal-divider"/>
       <div class="modal-titulo-lista">Títulos en el registro (${ed.titulos.length})</div>
-      ${ed.titulos.map(t => `
-        <div class="modal-titulo-item">
+      ${ed.titulos.map((t, i) => `
+        <div class="modal-titulo-item titulo-clickable" data-title-json='${JSON.stringify(t)}' style="cursor: pointer; user-select: none;">
           <span>${t.titulo}${t.autor ? ` — <em>${t.autor}</em>` : ''}</span>
           <span class="modal-titulo-año">${t.año || ''}</span>
         </div>
       `).join('')}
     `;
+    // Agregar event listeners a los títulos
+    document.querySelectorAll('.titulo-clickable').forEach(item => {
+      item.addEventListener('click', () => {
+        try {
+          const t = JSON.parse(item.dataset.titleJson);
+          // Crear un objeto simulado del registro para pasarlo a openModalTitulo
+          const mockRecord = {
+            'Título': t.titulo,
+            'Autor/es': t.autor,
+            'Editorial': ed.nombre,
+            'Provincia de origen': ed.provincia,
+            'Tipo de editorial': ed.tipo,
+            'Año de edición': t.año,
+            'ISBN': t.isbn,
+            'Colección': t.coleccion,
+            'Temática': t.tematica,
+            'Distribución': t.distribucion,
+            'Contacto o web': ed.contacto,
+            'Notas': t.notas,
+            'Observaciones': t.obs
+          };
+          openModalTitulo(mockRecord);
+        } catch(e) {
+          console.error('Error abriendo título:', e);
+        }
+      });
+    });
     openModal();
   }
 
