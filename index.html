@@ -639,7 +639,8 @@
           tematica: getField(r, 'Temática'),
           distribucion: getField(r, 'Distribución'),
           notas: getField(r, 'Notas'),
-          obs: getField(r, 'Observaciones')
+          obs: getField(r, 'Observaciones'),
+          record: r
         });
       }
     });
@@ -776,7 +777,8 @@
     const field = (label, value) => value
       ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
       : '';
-    document.getElementById('modal-content').innerHTML = `
+    
+    const html = `
       <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}</div>
       <div class="modal-titulo">${ed.nombre}</div>
       <hr class="modal-divider"/>
@@ -785,24 +787,48 @@
       ${ed.contacto ? `<div class="modal-field"><div class="modal-field-label">Contacto</div><div><a href="${ed.contacto.startsWith('http') ? ed.contacto : 'https://'+ed.contacto}" target="_blank" style="color:var(--accent)">${ed.contacto}</a></div></div>` : ''}
       <hr class="modal-divider"/>
       <div class="modal-titulo-lista">Títulos en el registro (${ed.titulos.length})</div>
-      ${ed.titulos.map(t => `
-        <div class="modal-titulo-item">
-          <span>${t.titulo}${t.autor ? ` — <em>${t.autor}</em>` : ''}</span>
-          <span class="modal-titulo-año">${t.año || ''}</span>
+      ${ed.titulos.map((t, idx) => `
+        <div class="modal-titulo-item-ed" data-ed-titulo-idx="${idx}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
+          <div style="font-weight:600">${t.titulo}</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">
+            ${t.autor ? `${t.autor} · ` : ''}${t.año || '—'}
+          </div>
         </div>
       `).join('')}
     `;
+    
+    document.getElementById('modal-content').innerHTML = html;
+    
+    // Listeners para títulos clickeables
+    document.querySelectorAll('[data-ed-titulo-idx]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(el.dataset.edTituloIdx);
+        if (!isNaN(idx) && ed.titulos[idx] && ed.titulos[idx].record) {
+          openModalTitulo(ed.titulos[idx].record);
+        }
+      });
+      el.addEventListener('mouseenter', () => el.style.background = 'var(--rule)');
+      el.addEventListener('mouseleave', () => el.style.background = 'transparent');
+    });
+    
     openModal();
   }
 
   function openModalAutor(autor) {
     const librosUnicos = {};
     
+    // DEBUG: Mostrar qué libros tiene
+    console.log(`DEBUG: ${autor.nombre} tiene ${autor.libros.length} registros`);
+    autor.libros.forEach((libro, i) => {
+      console.log(`  [${i}] título="${libro.titulo}" rol="${libro.rol}" editorial="${libro.editorial}"`);
+    });
+    
     // Construir índice de libros únicos por título
     autor.libros.forEach(libro => {
       // Filtrar libros sin título válido
       if (!libro.titulo || libro.titulo.trim() === '') {
-        console.warn('Advertencia: Autor sin título de libro', { autor: autor.nombre, libro });
+        console.warn('Advertencia: Libro sin título válido', { autor: autor.nombre, libro });
         return;
       }
       
