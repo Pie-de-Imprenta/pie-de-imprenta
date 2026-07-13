@@ -265,11 +265,14 @@
     const personas = [];
     const regex = /([^()]+)\s*\(([^)]+)\)/g;
     let match;
+    
     while ((match = regex.exec(texto)) !== null) {
       const nombre = match[1].trim();
       const rolRaw = match[2].trim().toLowerCase();
+      
       if (nombre) {
         let rol = rolRaw;
+        // Normalización específica de roles extraídos de paréntesis
         if (rolRaw.includes('compil')) rol = 'Compilación';
         else if (rolRaw.includes('coordinador') || rolRaw.includes('coord')) rol = 'Coordinación';
         else if (rolRaw.includes('director') || rolRaw.includes('dir')) rol = 'Dirección';
@@ -277,8 +280,11 @@
         else if (rolRaw.includes('corrector')) rol = 'Corrección';
         else if (rolRaw.includes('ilustrador') || rolRaw.includes('ilust')) rol = 'Ilustración';
         else if (rolRaw.includes('diseñador') || rolRaw.includes('diseño') || rolRaw.includes('maqueta')) rol = 'Diseño/Maquetación';
-        else if (rolRaw.includes('prólogo') || rolRaw.includes('prefacio') || rolRaw.includes('introducción')) rol = 'Prólogo/Prefacio/Introducción';
-        else rol = 'Editor/Colaborador';
+        else if (rolRaw.includes('prólogo')) rol = 'Prólogo';
+        else if (rolRaw.includes('prefacio')) rol = 'Prefacio';
+        else if (rolRaw.includes('introducción')) rol = 'Introducción';
+        else rol = 'Colaborador/a';
+        
         personas.push({ nombre, rol });
       }
     }
