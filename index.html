@@ -55,12 +55,11 @@
 
     /* AUTORES GRID */
     .autores-grid { padding: 1.5rem 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.2rem; }
-    .autor-card { background: var(--card-bg); padding: 1rem; text-align: center; cursor: pointer; transition: all 0.15s; animation: fadeIn 0.3s ease both; border: 1px solid var(--rule); }
+    .autor-card { background: var(--card-bg); padding: 1rem; cursor: pointer; transition: all 0.15s; animation: fadeIn 0.3s ease both; border: 1px solid var(--rule); }
     .autor-card:hover { background: #fff; transform: translateY(-2px); }
-    .autor-foto { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.6rem; background: var(--rule); border: 2px solid var(--rule); }
     .autor-nombre { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.2rem; }
     .autor-provincia { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
-    .autor-meta { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--muted); }
+    .autor-meta { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--muted); line-height: 1.4; }
 
     .directorio { padding: 1.5rem 2rem; }
     .letra-grupo { margin-bottom: 2rem; }
@@ -89,9 +88,9 @@
     .modal-field-value { font-family: 'Libre Franklin', sans-serif; font-size: 0.88rem; }
     .modal-isbn { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
     .modal-titulo-lista { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .modal-titulo-item { font-family: 'Libre Franklin', sans-serif; font-size: 0.82rem; padding: 0.4rem 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 0.5rem; }
+    .modal-titulo-item { font-family: 'Libre Franklin', sans-serif; font-size: 0.82rem; padding: 0.6rem 0; border-bottom: 1px solid var(--rule); }
     .modal-titulo-item:last-child { border-bottom: none; }
-    .modal-titulo-año { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted); white-space: nowrap; }
+    .modal-titulo-año { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted); }
 
     .editores-section { border-top: 3px double var(--ink); padding: 2rem; display: flex; flex-direction: column; gap: 1rem; max-width: 720px; }
     .editores-section h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
@@ -182,7 +181,7 @@
 
 <div id="ctrl-autores" class="controls hidden">
   <div class="search-wrap">
-    <input type="text" id="search-autores" placeholder="Buscar autor..." />
+    <input type="text" id="search-autores" placeholder="Buscar hacedor..." />
   </div>
   <span class="filter-label">Región:</span>
   <div class="filter-group" id="region-filters-autores">
@@ -207,7 +206,7 @@
 </div>
 
 <div class="autores-grid hidden" id="autores-grid">
-  <div class="loading">Cargando autores</div>
+  <div class="loading">Cargando hacedores</div>
 </div>
 
 <div class="editores-section">
@@ -249,14 +248,127 @@
     'Ente Patagónico': ['Chubut', 'La Pampa', 'Neuquén', 'Río Negro', 'Santa Cruz', 'Tierra del Fuego']
   };
 
-  function getRegion(provincia) {
-    for (const [region, provincias] of Object.entries(REGIONES)) {
-      if (provincias.some(p => provincia.toLowerCase().includes(p.toLowerCase()))) return region;
+  // ========== LÓGICA DE AUTORES ==========
+  const HACEDORES_COLUMNS = {
+    'Autor/es': 'Autoría',
+    'Compilación / Coordinación / Dirección': 'Compilación/Coordinación/Dirección',
+    'Traductor/a': 'Traducción',
+    'Corrector/a': 'Corrección',
+    'Ilustrador/a': 'Ilustración',
+    'Diseño de Tapa / Maquetación': 'Diseño/Maquetación',
+    'Prólogo / Prefacio / Introducción / Notas preliminares': 'Prólogo/Prefacio/Introducción',
+    'Notas': 'SPECIAL_PROCESSING'
+  };
+
+  function extractPersonasConRol(texto) {
+    if (!texto || typeof texto !== 'string') return [];
+    const personas = [];
+    const regex = /([^()]+)\s*\(([^)]+)\)/g;
+    let match;
+    while ((match = regex.exec(texto)) !== null) {
+      const nombre = match[1].trim();
+      const rolRaw = match[2].trim().toLowerCase();
+      if (nombre) {
+        let rol = rolRaw;
+        if (rolRaw.includes('compil')) rol = 'Compilación';
+        else if (rolRaw.includes('coordinador') || rolRaw.includes('coord')) rol = 'Coordinación';
+        else if (rolRaw.includes('director') || rolRaw.includes('dir')) rol = 'Dirección';
+        else if (rolRaw.includes('traductor') || rolRaw.includes('trad')) rol = 'Traducción';
+        else if (rolRaw.includes('corrector')) rol = 'Corrección';
+        else if (rolRaw.includes('ilustrador') || rolRaw.includes('ilust')) rol = 'Ilustración';
+        else if (rolRaw.includes('diseñador') || rolRaw.includes('diseño') || rolRaw.includes('maqueta')) rol = 'Diseño/Maquetación';
+        else if (rolRaw.includes('prólogo') || rolRaw.includes('prefacio') || rolRaw.includes('introducción')) rol = 'Prólogo/Prefacio/Introducción';
+        else rol = 'Editor/Colaborador';
+        personas.push({ nombre, rol });
+      }
     }
-    return 'Otras';
+    return personas;
   }
 
+  function extractPersonasSinRol(texto) {
+    if (!texto || typeof texto !== 'string') return [];
+    const cleaned = texto.replace(/\s*\([^)]*\)/g, '');
+    return cleaned.split(',').map(n => n.trim()).filter(n => n.length > 0);
+  }
+
+  function extraerHacedoresDelRegistro(record, colNames) {
+    const hacedores = [];
+    for (const [colName, rolDefault] of Object.entries(HACEDORES_COLUMNS)) {
+      const actualColName = colNames.find(c => c.toLowerCase().trim() === colName.toLowerCase().trim());
+      if (!actualColName) continue;
+      const valor = record[actualColName];
+      if (!valor || valor.trim() === '') continue;
+      let personas = [];
+      if (colName === 'Notas' || colName === 'Prólogo / Prefacio / Introducción / Notas preliminares') {
+        personas = extractPersonasConRol(valor);
+        const sinRol = extractPersonasSinRol(valor);
+        sinRol.forEach(nombre => {
+          if (!personas.some(p => p.nombre === nombre)) {
+            personas.push({ nombre, rol: rolDefault === 'SPECIAL_PROCESSING' ? 'Notas' : rolDefault });
+          }
+        });
+      } else {
+        const nombres = extractPersonasSinRol(valor);
+        personas = nombres.map(nombre => ({ nombre, rol: rolDefault }));
+      }
+      personas.forEach(p => {
+        hacedores.push({ nombre: p.nombre, rol: p.rol, columnaOrigen: colName });
+      });
+    }
+    return hacedores;
+  }
+
+  function normalizarNombre(nombre) {
+    return nombre.toLowerCase().trim();
+  }
+
+  function construirIndiceAutores(allRecords, colNames) {
+    const autoresMap = {};
+    allRecords.forEach(record => {
+      const titulo = getField(record, 'Título');
+      const año = getField(record, 'Año de edición');
+      const editorial = getField(record, 'Editorial');
+      const provincia = getField(record, 'Provincia de origen');
+      const region = getRegion(provincia);
+      const hacedores = extraerHacedoresDelRegistro(record, colNames);
+      hacedores.forEach(hacedor => {
+        const nombreNorm = normalizarNombre(hacedor.nombre);
+        if (!autoresMap[nombreNorm]) {
+          autoresMap[nombreNorm] = {
+            nombre: hacedor.nombre,
+            provincia: provincia,
+            region: region,
+            libros: []
+          };
+        }
+        autoresMap[nombreNorm].libros.push({
+          titulo: titulo,
+          año: año,
+          editorial: editorial,
+          rol: hacedor.rol,
+          provincia: provincia,
+          record: record
+        });
+      });
+    });
+    return autoresMap;
+  }
+
+  function filtroAutoresFunc(autoresMap, searchQuery = '', activeRegion = '') {
+    const q = searchQuery.toLowerCase();
+    return Object.values(autoresMap)
+      .filter(autor => {
+        const matchQ = !q || autor.nombre.toLowerCase().includes(q);
+        const matchRegion = !activeRegion || autor.region === activeRegion;
+        return matchQ && matchRegion;
+      })
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  }
+
+  // ========== GLOBALES ==========
   let allRecords = [];
+  let autoresMap = {};
+  let allColNames = [];
   let activeRegion = '';
   let activeRegionEd = '';
   let activeRegionAut = '';
@@ -270,6 +382,13 @@
       }
     }
     return '';
+  }
+
+  function getRegion(provincia) {
+    for (const [region, provincias] of Object.entries(REGIONES)) {
+      if (provincias.some(p => provincia.toLowerCase().includes(p.toLowerCase()))) return region;
+    }
+    return 'Otras';
   }
 
   function parseHash() {
@@ -354,12 +473,31 @@
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
+  // Reset al clickear el título "Pie de Imprenta"
+  document.querySelector('h1').addEventListener('click', () => {
+    activeRegion = '';
+    activeRegionEd = '';
+    activeRegionAut = '';
+    document.getElementById('search').value = '';
+    document.getElementById('search-ed').value = '';
+    document.getElementById('search-autores').value = '';
+    document.getElementById('tipo-filter').value = '';
+    document.getElementById('tipo-filter-ed').value = '';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.region === ''));
+    history.replaceState(null, '', '#titulos');
+    switchTab('titulos', false);
+    render();
+  });
+  document.querySelector('h1').style.cursor = 'pointer';
+
   async function loadData() {
     try {
       const res = await fetch(URL);
       const text = await res.text();
       const json = JSON.parse(text.slice(47, -2));
-      const cols = json.table.cols.map(c => c.label);
+      allColNames = json.table.cols.map(c => c.label);
+      const cols = allColNames;
       allRecords = json.table.rows
         .map(row => {
           const obj = {};
@@ -367,6 +505,10 @@
           return obj;
         })
         .filter(r => getField(r, 'Título'));
+      
+      // Construye el índice de autores con la nueva lógica
+      autoresMap = construirIndiceAutores(allRecords, allColNames);
+      
       restoreFromHash();
       render();
       if (currentTab === 'editoriales') renderDirectorio();
@@ -374,6 +516,7 @@
       updateMeta();
       generateSchemaOrg(allRecords);
     } catch(e) {
+      console.error('Error loading data:', e);
       document.getElementById('grid').innerHTML = '<div class="empty">No se pudieron cargar los datos.</div>';
     }
   }
@@ -523,66 +666,42 @@
     document.getElementById('footer-count').textContent = `${allRecords.length} registros totales`;
   }
 
-  function filteredAutores() {
-    const q = document.getElementById('search-autores')?.value.toLowerCase() || '';
-    const autores = {};
-    allRecords.forEach(r => {
-      const autoresStr = getField(r, 'Autor/es');
-      const provincia = getField(r, 'Provincia de origen');
-      const region = getRegion(provincia);
-      if (autoresStr) {
-        const nombres = autoresStr.split(/[,;]/).map(n => n.trim()).filter(Boolean);
-        nombres.forEach(nombre => {
-          const matchQ = !q || nombre.toLowerCase().includes(q);
-          const matchRegion = !activeRegionAut || region === activeRegionAut;
-          if (matchQ && matchRegion) {
-            if (!autores[nombre]) {
-              autores[nombre] = {
-                nombre,
-                provincia,
-                region,
-                titulos: []
-              };
-            }
-            autores[nombre].titulos.push({
-              titulo: getField(r, 'Título'),
-              año: getField(r, 'Año de edición'),
-              editorial: getField(r, 'Editorial')
-            });
-          }
-        });
-      }
-    });
-    return Object.values(autores).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
-  }
-
   function renderAutores() {
-    const autores = filteredAutores();
+    const q = document.getElementById('search-autores')?.value.toLowerCase() || '';
+    const autores = filtroAutoresFunc(autoresMap, q, activeRegionAut);
     const grid = document.getElementById('autores-grid');
+    
     if (!autores.length) {
-      grid.innerHTML = '<div class="empty">No se encontraron autores con ese criterio.</div>';
+      grid.innerHTML = '<div class="empty">No se encontraron hacedores con ese criterio.</div>';
       updateStats([]);
       return;
     }
-    grid.innerHTML = autores.map((a, i) => `
-      <div class="autor-card" data-autor-json='${JSON.stringify(a)}' style="animation-delay:${i*0.02}s">
-        <div class="autor-nombre">${a.nombre}</div>
-        <div class="autor-provincia">${a.provincia || '—'}</div>
-        <div class="autor-meta">${a.titulos.length} título${a.titulos.length !== 1 ? 's' : ''}</div>
-      </div>
-    `).join('');
+    
+    grid.innerHTML = autores.map((a, i) => {
+      const rolesUnicos = [...new Set(a.libros.map(l => l.rol))];
+      return `
+        <div class="autor-card" data-autor-name='${a.nombre.replace(/'/g, "&#39;")}' style="animation-delay:${i*0.02}s">
+          <div class="autor-nombre">${a.nombre}</div>
+          <div class="autor-provincia">${a.provincia || '—'}</div>
+          <div class="autor-meta">
+            <strong>${a.libros.length}</strong> título${a.libros.length !== 1 ? 's' : ''} · ${rolesUnicos.join(', ')}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
     grid.querySelectorAll('.autor-card').forEach(card => {
       card.addEventListener('click', () => {
-        try {
-          const a = JSON.parse(card.dataset.autorJson);
-          openModalAutor(a);
-        } catch(e) {
-          console.error('Error parsing autor:', e);
+        const nombre = card.dataset.autorName;
+        const nombreNorm = normalizarNombre(nombre);
+        if (autoresMap[nombreNorm]) {
+          openModalAutor(autoresMap[nombreNorm]);
         }
       });
     });
+    
     document.getElementById('stats-bar').innerHTML =
-      `<span>${autores.length}</span> autores · ${allRecords.length} títulos`;
+      `<span>${autores.length}</span> hacedores · ${allRecords.length} títulos`;
     document.getElementById('footer-count').textContent = `${allRecords.length} registros totales`;
   }
 
@@ -646,19 +765,58 @@
     openModal();
   }
 
-  function openModalAutor(a) {
-    document.getElementById('modal-content').innerHTML = `
-      <div class="modal-kicker">${a.region}${a.provincia ? ' · ' + a.provincia : ''}</div>
-      <div class="modal-titulo">${a.nombre}</div>
+  function openModalAutor(autor) {
+    const librosUnicos = {};
+    autor.libros.forEach(libro => {
+      if (!librosUnicos[libro.titulo]) {
+        librosUnicos[libro.titulo] = { ...libro, roles: [libro.rol] };
+      } else {
+        if (!librosUnicos[libro.titulo].roles.includes(libro.rol)) {
+          librosUnicos[libro.titulo].roles.push(libro.rol);
+        }
+      }
+    });
+    
+    const rolesEnGeneral = [...new Set(autor.libros.map(l => l.rol))];
+    const librosArray = Object.values(librosUnicos);
+    
+    const html = `
+      <div class="modal-kicker">${autor.region}${autor.provincia ? ' · ' + autor.provincia : ''}</div>
+      <div class="modal-titulo">${autor.nombre}</div>
+      <div class="modal-kicker" style="color:var(--muted);font-size:0.8rem;margin-top:0.4rem">
+        ${rolesEnGeneral.join(' + ')}
+      </div>
       <hr class="modal-divider"/>
-      <div class="modal-titulo-lista">Títulos en el registro (${a.titulos.length})</div>
-      ${a.titulos.map(t => `
-        <div class="modal-titulo-item">
-          <span>${t.titulo}</span>
-          <span class="modal-titulo-año">${t.año || ''}</span>
+      <div class="modal-titulo-lista">Obras (${librosArray.length})</div>
+      ${librosArray.map((libro, idx) => `
+        <div class="modal-titulo-item-autor" data-libro-idx="${idx}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
+          <div>
+            <div style="font-weight:600">${libro.titulo}</div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">
+              ${libro.editorial} · ${libro.año || '—'}
+            </div>
+            <div style="font-size:0.7rem;color:var(--accent);margin-top:0.1rem;letter-spacing:0.05em">
+              ${libro.roles.join(' + ')}
+            </div>
+          </div>
         </div>
       `).join('')}
     `;
+    document.getElementById('modal-content').innerHTML = html;
+    
+    // Listeners para títulos clickeables
+    document.querySelectorAll('[data-libro-idx]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(el.dataset.libroIdx);
+        if (!isNaN(idx) && librosArray[idx] && librosArray[idx].record) {
+          openModalTitulo(librosArray[idx].record);
+        }
+      });
+      el.addEventListener('mouseenter', () => el.style.background = 'var(--rule)');
+      el.addEventListener('mouseleave', () => el.style.background = 'transparent');
+    });
+    
     openModal();
   }
 
