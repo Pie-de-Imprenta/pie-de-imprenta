@@ -731,7 +731,7 @@
     });
     
     document.getElementById('stats-bar').innerHTML =
-      `<span>${autores.length}</span> hacedores · ${allRecords.length} títulos`;
+      `<span>${autores.length}</span> autores · ${allRecords.length} títulos`;
     document.getElementById('footer-count').textContent = `${allRecords.length} registros totales`;
   }
 
@@ -797,7 +797,15 @@
 
   function openModalAutor(autor) {
     const librosUnicos = {};
+    
+    // Construir índice de libros únicos por título
     autor.libros.forEach(libro => {
+      // Filtrar libros sin título válido
+      if (!libro.titulo || libro.titulo.trim() === '') {
+        console.warn('Advertencia: Autor sin título de libro', { autor: autor.nombre, libro });
+        return;
+      }
+      
       if (!librosUnicos[libro.titulo]) {
         librosUnicos[libro.titulo] = { ...libro, roles: [libro.rol] };
       } else {
@@ -818,20 +826,24 @@
       </div>
       <hr class="modal-divider"/>
       <div class="modal-titulo-lista">Obras (${librosArray.length})</div>
-      ${librosArray.map((libro, idx) => `
-        <div class="modal-titulo-item-autor" data-libro-idx="${idx}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
-          <div>
-            <div style="font-weight:600">${libro.titulo}</div>
-            <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">
-              ${libro.editorial} · ${libro.año || '—'}
-            </div>
-            <div style="font-size:0.7rem;color:var(--accent);margin-top:0.1rem;letter-spacing:0.05em">
-              ${libro.roles.join(' + ')}
+      ${librosArray.length > 0 
+        ? librosArray.map((libro, idx) => `
+          <div class="modal-titulo-item-autor" data-libro-idx="${idx}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
+            <div>
+              <div style="font-weight:600">${libro.titulo}</div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">
+                ${libro.editorial} · ${libro.año || '—'}
+              </div>
+              <div style="font-size:0.7rem;color:var(--accent);margin-top:0.1rem;letter-spacing:0.05em">
+                ${libro.roles.join(' + ')}
+              </div>
             </div>
           </div>
-        </div>
-      `).join('')}
+        `).join('')
+        : '<div style="color:var(--muted);font-style:italic;padding:1rem 0">Sin obras registradas</div>'
+      }
     `;
+    
     document.getElementById('modal-content').innerHTML = html;
     
     // Listeners para títulos clickeables
