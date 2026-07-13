@@ -181,7 +181,7 @@
 
 <div id="ctrl-autores" class="controls hidden">
   <div class="search-wrap">
-    <input type="text" id="search-autores" placeholder="Buscar hacedor..." />
+    <input type="text" id="search-autores" placeholder="Buscar por nombre..." />
   </div>
   <span class="filter-label">Región:</span>
   <div class="filter-group" id="region-filters-autores">
@@ -294,13 +294,29 @@
   function extraerHacedoresDelRegistro(record, colNames) {
     const hacedores = [];
     for (const [colName, rolDefault] of Object.entries(HACEDORES_COLUMNS)) {
-      const actualColName = colNames.find(c => c.toLowerCase().trim() === colName.toLowerCase().trim());
+      // Búsqueda flexible: busca que la columna contenga el nombre, no coincidencia exacta
+      const actualColName = colNames.find(c => {
+        const cLower = c.toLowerCase().trim();
+        const colLower = colName.toLowerCase().trim();
+        // Para columnas "especiales" (Notas, Prólogo), usa includes; para otras, igualdad exacta
+        if (colName.includes('Notas') || colName.includes('Prólogo')) {
+          return cLower.includes(colLower.split('/')[0].trim().toLowerCase());
+        }
+        return cLower === colLower;
+      });
+      
       if (!actualColName) continue;
       const valor = record[actualColName];
       if (!valor || valor.trim() === '') continue;
+      
       let personas = [];
+      
+      // REGLA ESPECIAL para columnas que pueden tener roles entre paréntesis
       if (colName === 'Notas' || colName === 'Prólogo / Prefacio / Introducción / Notas preliminares') {
+        // Primero intenta extraer personas con rol explícito
         personas = extractPersonasConRol(valor);
+        
+        // Luego, extrae personas sin rol (el rol será el default de la columna, si aplica)
         const sinRol = extractPersonasSinRol(valor);
         sinRol.forEach(nombre => {
           if (!personas.some(p => p.nombre === nombre)) {
@@ -308,9 +324,11 @@
           }
         });
       } else {
+        // Columnas normales: solo separá por comas, usa el rol default
         const nombres = extractPersonasSinRol(valor);
         personas = nombres.map(nombre => ({ nombre, rol: rolDefault }));
       }
+      
       personas.forEach(p => {
         hacedores.push({ nombre: p.nombre, rol: p.rol, columnaOrigen: colName });
       });
