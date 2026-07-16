@@ -141,7 +141,8 @@
   <span class="filter-label">Región:</span>
   <div class="filter-group" id="region-filters">
     <button class="filter-btn active" data-region="">Todas</button>
-    <button class="filter-btn" data-region="Buenos Aires y CABA">Bs. As. / CABA</button>
+    <button class="filter-btn" data-region="Buenos Aires">Buenos Aires</button>
+    <button class="filter-btn" data-region="CABA">CABA</button>
     <button class="filter-btn" data-region="Norte Cultura">Norte Cultura</button>
     <button class="filter-btn" data-region="Cultura Cuyo">Cultura Cuyo</button>
     <button class="filter-btn" data-region="Litoral">Litoral</button>
@@ -164,7 +165,8 @@
   <span class="filter-label">Región:</span>
   <div class="filter-group" id="region-filters-ed">
     <button class="filter-btn active" data-region="">Todas</button>
-    <button class="filter-btn" data-region="Buenos Aires y CABA">Bs. As. / CABA</button>
+    <button class="filter-btn" data-region="Buenos Aires">Buenos Aires</button>
+    <button class="filter-btn" data-region="CABA">CABA</button>
     <button class="filter-btn" data-region="Norte Cultura">Norte Cultura</button>
     <button class="filter-btn" data-region="Cultura Cuyo">Cultura Cuyo</button>
     <button class="filter-btn" data-region="Litoral">Litoral</button>
@@ -187,7 +189,8 @@
   <span class="filter-label">Región:</span>
   <div class="filter-group" id="region-filters-autores">
     <button class="filter-btn active" data-region="">Todas</button>
-    <button class="filter-btn" data-region="Buenos Aires y CABA">Bs. As. / CABA</button>
+    <button class="filter-btn" data-region="Buenos Aires">Buenos Aires</button>
+    <button class="filter-btn" data-region="CABA">CABA</button>
     <button class="filter-btn" data-region="Norte Cultura">Norte Cultura</button>
     <button class="filter-btn" data-region="Cultura Cuyo">Cultura Cuyo</button>
     <button class="filter-btn" data-region="Litoral">Litoral</button>
@@ -218,7 +221,7 @@
     podés sumarte y visibilizar tus novedades para libreros y distribuidores de todo el país.
     No hace falta ningún trámite: completás un formulario y tus títulos aparecen en el registro.
   </p>
-  <a class="btn-sumar" href="https://docs.google.com/forms/d/e/1FAIpQLSfnzPyU2J9pLd7NGiM847QK5hIqGpH0W-KI2GU1Ig7v5T7ouQ/viewform" target="_blank">
+  <a class="btn-sumar" href="https://wa.me/+5491128377425?text=Hola%20Javier,%20quiero%20sumar%20mi%20catálogo%20a%20Pie%20de%20Imprenta" target="_blank">
     Sumá tus novedades →
   </a>
 </div>
@@ -241,7 +244,8 @@
   const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
   const REGIONES = {
-    'Buenos Aires y CABA': ['Buenos Aires', 'CABA'],
+    'Buenos Aires': ['Buenos Aires'],
+    'CABA': ['CABA'],
     'Norte Cultura': ['Catamarca', 'Jujuy', 'Salta', 'Tucumán'],
     'Cultura Cuyo': ['Mendoza', 'San Juan', 'San Luis'],
     'Litoral': ['Chaco', 'Corrientes', 'Entre Ríos', 'Formosa', 'Misiones', 'Santa Fe', 'Santiago del Estero'],
@@ -258,7 +262,7 @@
     'Ilustrador/a': 'Ilustración',
     'Diseño de Tapa / Maquetación': 'Diseño/Maquetación',
     'Prólogo / Prefacio / Introducción / Notas preliminares': 'Prólogo/Prefacio/Introducción',
-    'Notas': 'SPECIAL_PROCESSING'
+    'Observaciones': 'SPECIAL_PROCESSING'
   };
 
   function extractPersonasConRol(texto) {
@@ -312,7 +316,7 @@
         const cLower = c.toLowerCase().trim();
         const colLower = colName.toLowerCase().trim();
         // Para columnas "especiales" (Notas, Prólogo), usa includes; para otras, igualdad exacta
-        if (colName.includes('Notas') || colName.includes('Prólogo')) {
+        if (colName.includes('Observaciones') || colName.includes('Prólogo')) {
           return cLower.includes(colLower.split('/')[0].trim().toLowerCase());
         }
         return cLower === colLower;
@@ -325,7 +329,7 @@
       let personas = [];
       
       // REGLA ESPECIAL para columnas que pueden tener roles entre paréntesis
-      if (colName === 'Notas' || colName === 'Prólogo / Prefacio / Introducción / Notas preliminares') {
+      if (colName === 'Observaciones' || colName === 'Prólogo / Prefacio / Introducción / Notas preliminares') {
         // Primero intenta extraer personas con rol explícito
         personas = extractPersonasConRol(valor);
         
@@ -400,10 +404,23 @@
   let allRecords = [];
   let autoresMap = {};
   let allColNames = [];
+  let indiceEditoriales = {};
   let activeRegion = '';
   let activeRegionEd = '';
   let activeRegionAut = '';
   let currentTab = 'titulos';
+
+  function construirIndiceEditoriales(records) {
+    const edMap = {};
+    records.forEach(r => {
+      const editorial = getField(r, 'Editorial');
+      const municipio = getField(r, 'Municipio / Departamento');
+      if (editorial && !edMap[editorial] && municipio) {
+        edMap[editorial] = municipio;
+      }
+    });
+    return edMap;
+  }
 
   function getField(record, ...candidates) {
     for (const c of candidates) {
@@ -539,6 +556,7 @@
       
       // Construye el índice de autores con la nueva lógica
       autoresMap = construirIndiceAutores(allRecords, allColNames);
+      indiceEditoriales = construirIndiceEditoriales(allRecords);
       
       restoreFromHash();
       render();
@@ -742,29 +760,42 @@
     const autor = getField(r, 'Autor/es');
     const editorial = getField(r, 'Editorial');
     const provincia = getField(r, 'Provincia de origen');
+    let municipio = getField(r, 'Municipio / Departamento');
+    // Si no tiene municipio, intenta heredarlo del índice de editoriales
+    if (!municipio && indiceEditoriales[editorial]) {
+      municipio = indiceEditoriales[editorial];
+    }
     const tipo = getField(r, 'Tipo de editorial');
     const año = getField(r, 'Año de edición');
+    const edicion = getField(r, 'Edición');
+    const soporte = getField(r, 'Soporte');
     const isbn = getField(r, 'ISBN');
     const coleccion = getField(r, 'Colección');
-    const tematica = getField(r, 'Temática');
+    const tematica = getField(r, 'Temática / Género');
     const distribucion = getField(r, 'Distribución');
     const contacto = getField(r, 'Contacto o web');
     const notas = getField(r, 'Notas');
     const obs = getField(r, 'Observaciones');
     const region = getRegion(provincia);
+    
+    // Ubicación con municipio/departamento si existe
+    const ubicacion = municipio ? `${region} · ${provincia} · ${municipio}` : `${region}${provincia ? ' · ' + provincia : ''}`;
+    
     const field = (label, value) => value
       ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
       : '';
     document.getElementById('modal-content').innerHTML = `
-      <div class="modal-kicker">${region}${provincia ? ' · ' + provincia : ''}</div>
+      <div class="modal-kicker">${ubicacion}</div>
       <div class="modal-titulo">${titulo}</div>
       ${autor ? `<div class="modal-kicker" style="color:var(--ink);font-weight:400;font-size:0.9rem;margin-top:0.5rem">${autor}</div>` : ''}
       <hr class="modal-divider"/>
       ${field('Editorial', editorial)}
       ${field('Tipo de editorial', tipo)}
       ${field('Año de edición', año)}
+      ${field('Edición', edicion)}
+      ${field('Soporte', soporte)}
       ${field('Colección', coleccion)}
-      ${field('Temática', tematica)}
+      ${field('Temática / Género', tematica)}
       ${field('Distribución', distribucion)}
       ${isbn ? `<div class="modal-isbn">ISBN: ${isbn}</div>` : ''}
       ${contacto ? `<hr class="modal-divider"/><div class="modal-field"><div class="modal-field-label">Contacto</div><div><a href="${contacto.startsWith('http') ? contacto : 'https://'+contacto}" target="_blank" style="color:var(--accent)">${contacto}</a></div></div>` : ''}
