@@ -317,7 +317,7 @@
         const colLower = colName.toLowerCase().trim();
         // Para columnas "especiales" (Notas, Prólogo), usa includes; para otras, igualdad exacta
         if (colName.includes('Observaciones') || colName.includes('Prólogo')) {
-          return cLower.includes(colLower.split('/')[0].trim().toLowerCase());
+          return cLower.includes('observaciones') || cLower.includes('prólogo');
         }
         return cLower === colLower;
       });
@@ -337,7 +337,7 @@
         const sinRol = extractPersonasSinRol(valor);
         sinRol.forEach(nombre => {
           if (!personas.some(p => p.nombre === nombre)) {
-            personas.push({ nombre, rol: rolDefault === 'SPECIAL_PROCESSING' ? 'Notas' : rolDefault });
+            personas.push({ nombre, rol: rolDefault === 'SPECIAL_PROCESSING' ? 'Observaciones' : rolDefault });
           }
         });
       } else {
