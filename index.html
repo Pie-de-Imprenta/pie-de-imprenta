@@ -875,7 +875,7 @@
     });
     
     const html = `
-      <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}${municipio ? ' · ' + municipio : ''}</div>
+      <div class="modal-kicker">${ed.region === ed.provincia ? '' : ed.region ? ed.region + ' · ' : ''}${ed.provincia ? ed.provincia : ''}${municipio ? ' · ' + municipio : ''}</div>
       <div class="modal-titulo">${ed.nombre}</div>
       <hr class="modal-divider"/>
       ${field('Tipo de editorial', ed.tipo)}
