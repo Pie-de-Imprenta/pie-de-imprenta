@@ -815,6 +815,13 @@
       ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
       : '';
     
+    // Ordenar títulos por año descendente (más reciente primero)
+    const titulosOrdenados = [...ed.titulos].sort((a, b) => {
+      const yearA = parseInt(a.año) || 0;
+      const yearB = parseInt(b.año) || 0;
+      return yearB - yearA;
+    });
+    
     const html = `
       <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}</div>
       <div class="modal-titulo">${ed.nombre}</div>
@@ -824,8 +831,8 @@
       ${ed.contacto ? `<div class="modal-field"><div class="modal-field-label">Contacto</div><div><a href="${ed.contacto.startsWith('http') ? ed.contacto : 'https://'+ed.contacto}" target="_blank" style="color:var(--accent)">${ed.contacto}</a></div></div>` : ''}
       <hr class="modal-divider"/>
       <div class="modal-titulo-lista">Títulos en el registro (${ed.titulos.length})</div>
-      ${ed.titulos.map((t, idx) => `
-        <div class="modal-titulo-item-ed" data-ed-titulo-idx="${idx}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
+      ${titulosOrdenados.map((t, idx) => `
+        <div class="modal-titulo-item-ed" data-titulo="${t.titulo}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
           <div style="font-weight:600">${t.titulo}</div>
           <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">
             ${t.autor ? `${t.autor} · ` : ''}${t.año || '—'}
@@ -837,12 +844,14 @@
     document.getElementById('modal-content').innerHTML = html;
     
     // Listeners para títulos clickeables
-    document.querySelectorAll('[data-ed-titulo-idx]').forEach(el => {
+    document.querySelectorAll('[data-titulo]').forEach(el => {
       el.addEventListener('click', (e) => {
         e.stopPropagation();
-        const idx = parseInt(el.dataset.edTituloIdx);
-        if (!isNaN(idx) && ed.titulos[idx] && ed.titulos[idx].record) {
-          openModalTitulo(ed.titulos[idx].record);
+        const tituloNombre = el.dataset.titulo;
+        // Busca el libro por título en la lista original
+        const libro = ed.titulos.find(t => t.titulo === tituloNombre);
+        if (libro && libro.record) {
+          openModalTitulo(libro.record);
         }
       });
       el.addEventListener('mouseenter', () => el.style.background = 'var(--rule)');
@@ -881,6 +890,13 @@
     const rolesEnGeneral = [...new Set(autor.libros.map(l => l.rol))];
     const librosArray = Object.values(librosUnicos);
     
+    // Ordenar libros por año descendente (más reciente primero)
+    const librosOrdenados = librosArray.sort((a, b) => {
+      const yearA = parseInt(a.año) || 0;
+      const yearB = parseInt(b.año) || 0;
+      return yearB - yearA;
+    });
+    
     const html = `
       <div class="modal-kicker">${autor.region}${autor.provincia ? ' · ' + autor.provincia : ''}</div>
       <div class="modal-titulo">${autor.nombre}</div>
@@ -889,9 +905,9 @@
       </div>
       <hr class="modal-divider"/>
       <div class="modal-titulo-lista">Obras (${librosArray.length})</div>
-      ${librosArray.length > 0 
-        ? librosArray.map((libro, idx) => `
-          <div class="modal-titulo-item-autor" data-libro-idx="${idx}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
+      ${librosOrdenados.length > 0 
+        ? librosOrdenados.map((libro, idx) => `
+          <div class="modal-titulo-item-autor" data-libro-titulo="${libro.titulo}" style="cursor:pointer;transition:background 0.15s;padding:0.6rem 0">
             <div>
               <div style="font-weight:600">${libro.titulo}</div>
               <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">
@@ -910,12 +926,14 @@
     document.getElementById('modal-content').innerHTML = html;
     
     // Listeners para títulos clickeables
-    document.querySelectorAll('[data-libro-idx]').forEach(el => {
+    document.querySelectorAll('[data-libro-titulo]').forEach(el => {
       el.addEventListener('click', (e) => {
         e.stopPropagation();
-        const idx = parseInt(el.dataset.libroIdx);
-        if (!isNaN(idx) && librosArray[idx] && librosArray[idx].record) {
-          openModalTitulo(librosArray[idx].record);
+        const libroTitulo = el.dataset.libroTitulo;
+        // Busca el libro por título en librosUnicos
+        const libro = librosUnicos[libroTitulo];
+        if (libro && libro.record) {
+          openModalTitulo(libro.record);
         }
       });
       el.addEventListener('mouseenter', () => el.style.background = 'var(--rule)');
