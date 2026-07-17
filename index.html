@@ -830,7 +830,9 @@
     const region = getRegion(provincia);
     
     // Ubicación con municipio/departamento si existe
-    const ubicacion = municipio ? `${region} · ${provincia} · ${municipio}` : `${region}${provincia ? ' · ' + provincia : ''}`;
+    const ubicacion = municipio 
+      ? `${region === provincia ? '' : region ? region + ' · ' : ''}${provincia}${municipio ? ' · ' + municipio : ''}`
+      : `${region === provincia ? '' : region ? region + ' · ' : ''}${provincia ? provincia : ''}`;
     
     const field = (label, value) => value
       ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
@@ -950,7 +952,7 @@
     });
     
     const html = `
-      <div class="modal-kicker">${autor.region}${autor.provincia ? ' · ' + autor.provincia : ''}${autor.municipio ? ' · ' + autor.municipio : ''}</div>
+      <div class="modal-kicker">${autor.region === autor.provincia ? '' : autor.region ? autor.region + ' · ' : ''}${autor.provincia ? autor.provincia : ''}${autor.municipio ? ' · ' + autor.municipio : ''}</div>
       <div class="modal-titulo">${autor.nombre}</div>
       <div class="modal-kicker" style="color:var(--muted);font-size:0.8rem;margin-top:0.4rem">
         ${rolesEnGeneral.join(' + ')}
