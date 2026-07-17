@@ -369,6 +369,7 @@
       const año = getField(record, 'Año de edición');
       const editorial = getField(record, 'Editorial');
       const provincia = getField(record, 'Provincia de origen');
+      const municipio = getField(record, 'Municipio / Departamento', 'Municipios / Departamentos', 'Municipio', 'Departamento');
       const region = getRegion(provincia);
       const hacedores = extraerHacedoresDelRegistro(record, colNames);
       hacedores.forEach(hacedor => {
@@ -377,6 +378,7 @@
           autoresMap[nombreNorm] = {
             nombre: hacedor.nombre,
             provincia: provincia,
+            municipio: municipio,
             region: region,
             libros: []
           };
@@ -387,6 +389,7 @@
           editorial: editorial,
           rol: hacedor.rol,
           provincia: provincia,
+          municipio: municipio,
           record: record
         });
       });
@@ -419,9 +422,24 @@
     const edMap = {};
     records.forEach(r => {
       const editorial = getField(r, 'Editorial');
-      const municipio = getField(r, 'Municipio / Departamento');
+      // Busca la columna Municipio/Departamento intentando variantes
+      let municipio = getField(r, 'Municipio / Departamento') || 
+                      getField(r, 'Municipios / Departamentos') ||
+                      getField(r, 'Municipio');
+      
+      // Si aún no encontró, busca en allColNames directamente
+      if (!municipio) {
+        const colMunicipio = allColNames.find(c => {
+          const cLower = c.toLowerCase().trim();
+          return cLower.includes('municipio') || cLower.includes('departamento');
+        });
+        if (colMunicipio) {
+          municipio = r[colMunicipio];
+        }
+      }
+      
       if (editorial && !edMap[editorial] && municipio) {
-        edMap[editorial] = municipio;
+        edMap[editorial] = municipio.trim();
       }
     });
     return edMap;
@@ -644,10 +662,26 @@
       const matchRegion = !activeRegionEd || region === activeRegionEd;
       const matchTipo = !tipo || tipoEd.toLowerCase().includes(tipo);
       if (nombre && matchQ && matchRegion && matchTipo) {
+        // Busca Municipio/Departamento
+        let municipio = getField(r, 'Municipio / Departamento') || 
+                        getField(r, 'Municipios / Departamentos') ||
+                        getField(r, 'Municipio');
+        // Si no encontró, busca en allColNames
+        if (!municipio) {
+          const colMunicipio = allColNames.find(c => {
+            const cLower = c.toLowerCase().trim();
+            return cLower.includes('municipio') || cLower.includes('departamento');
+          });
+          if (colMunicipio) {
+            municipio = r[colMunicipio];
+          }
+        }
+        
         if (!edMap[nombre]) {
           edMap[nombre] = {
             nombre,
             provincia,
+            municipio: municipio ? municipio.trim() : '',
             tipo: tipoEd,
             region,
             contacto: getField(r, 'Contacto o web'),
@@ -662,12 +696,24 @@
           coleccion: getField(r, 'Colección'),
           tematica: getField(r, 'Temática'),
           distribucion: getField(r, 'Distribución'),
+          municipio: municipio ? municipio.trim() : '',
           notas: getField(r, 'Notas'),
           obs: getField(r, 'Observaciones'),
           record: r
         });
       }
     });
+    
+    // Post-procesamiento: si una editorial no tiene municipio, usa el del primer título
+    Object.keys(edMap).forEach(nombre => {
+      if (!edMap[nombre].municipio && edMap[nombre].titulos.length > 0) {
+        const primerTituloConMunicipio = edMap[nombre].titulos.find(t => t.municipio);
+        if (primerTituloConMunicipio) {
+          edMap[nombre].municipio = primerTituloConMunicipio.municipio;
+        }
+      }
+    });
+    
     return Object.values(edMap).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
   }
 
@@ -737,7 +783,7 @@
       return `
         <div class="autor-card" data-autor-name='${a.nombre.replace(/'/g, "&#39;")}' style="animation-delay:${i*0.02}s">
           <div class="autor-nombre">${a.nombre}</div>
-          <div class="autor-provincia">${a.provincia || '—'}</div>
+          <div class="autor-provincia">${a.provincia || '—'}${a.municipio ? ' · ' + a.municipio : ''}</div>
           <div class="autor-meta">
             <strong>${a.libros.length}</strong> título${a.libros.length !== 1 ? 's' : ''} · ${rolesUnicos.join(', ')}
           </div>
@@ -765,7 +811,7 @@
     const autor = getField(r, 'Autor/es');
     const editorial = getField(r, 'Editorial');
     const provincia = getField(r, 'Provincia de origen');
-    let municipio = getField(r, 'Municipio / Departamento');
+    let municipio = getField(r, 'Municipio / Departamento', 'Municipios / Departamentos', 'Municipio', 'Departamento');
     // Si no tiene municipio, intenta heredarlo del índice de editoriales
     if (!municipio && indiceEditoriales[editorial]) {
       municipio = indiceEditoriales[editorial];
@@ -815,6 +861,12 @@
       ? `<div class="modal-field"><div class="modal-field-label">${label}</div><div class="modal-field-value">${value}</div></div>`
       : '';
     
+    // Si no tiene municipio, intenta heredarlo del índice de editoriales
+    let municipio = ed.municipio;
+    if (!municipio && indiceEditoriales[ed.nombre]) {
+      municipio = indiceEditoriales[ed.nombre];
+    }
+    
     // Ordenar títulos por año descendente (más reciente primero)
     const titulosOrdenados = [...ed.titulos].sort((a, b) => {
       const yearA = parseInt(a.año) || 0;
@@ -823,7 +875,7 @@
     });
     
     const html = `
-      <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}</div>
+      <div class="modal-kicker">${ed.region}${ed.provincia ? ' · ' + ed.provincia : ''}${municipio ? ' · ' + municipio : ''}</div>
       <div class="modal-titulo">${ed.nombre}</div>
       <hr class="modal-divider"/>
       ${field('Tipo de editorial', ed.tipo)}
@@ -898,7 +950,7 @@
     });
     
     const html = `
-      <div class="modal-kicker">${autor.region}${autor.provincia ? ' · ' + autor.provincia : ''}</div>
+      <div class="modal-kicker">${autor.region}${autor.provincia ? ' · ' + autor.provincia : ''}${autor.municipio ? ' · ' + autor.municipio : ''}</div>
       <div class="modal-titulo">${autor.nombre}</div>
       <div class="modal-kicker" style="color:var(--muted);font-size:0.8rem;margin-top:0.4rem">
         ${rolesEnGeneral.join(' + ')}
