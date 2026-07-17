@@ -315,10 +315,15 @@
       const actualColName = colNames.find(c => {
         const cLower = c.toLowerCase().trim();
         const colLower = colName.toLowerCase().trim();
-        // Para columnas "especiales" (Notas, Prólogo), usa includes; para otras, igualdad exacta
-        if (colName.includes('Observaciones') || colName.includes('Prólogo')) {
-          return cLower.includes('observaciones') || cLower.includes('prólogo');
+        // Para 'Observaciones': busca EXACTAMENTE, no "Notas / Observaciones"
+        if (colName === 'Observaciones') {
+          return cLower === 'observaciones';
         }
+        // Para Prólogo: usa includes
+        if (colName === 'Prólogo / Prefacio / Introducción / Notas preliminares') {
+          return cLower.includes('prólogo');
+        }
+        // Para otras columnas: búsqueda exacta
         return cLower === colLower;
       });
       
