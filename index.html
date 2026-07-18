@@ -564,9 +564,9 @@
 
   async function loadData() {
     try {
-      const res = await fetch(URL);
+      const res = await fetch('./data.json');
       const text = await res.text();
-      const json = JSON.parse(text.slice(47, -2));
+      const json = JSON.parse(text);
       allColNames = json.table.cols.map(c => c.label);
       const cols = allColNames;
       allRecords = json.table.rows
